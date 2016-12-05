@@ -72,7 +72,7 @@ angle = np.atleast_2d(angle).T
 
 image_number = np.atleast_2d(image_number).T
 test_data =  np.hstack((image_number, angle))
-print test_data
+#print test_data
 train_percent = .8
 train_number = int(len(test_data)*train_percent)
 train_data = np.zeros((train_number, 2))
@@ -90,20 +90,19 @@ def gen_batch(angles, images, batch_size, image_array=cv_img):
     indices = random.sample(xrange(0,len(images)), batch_size)
     batch_images = []
     batch_angles = []
+ #   print angles
     for i in range(batch_size):
         batch_images.append(image_array[int(images[indices[i]])][:])
-        batch_angles.append(angles[indices[i],:])
+        batch_angles.append(angles[indices[i]])
     batch_images = np.asarray(batch_images)
     batch_angles = np.asarray(batch_angles)
     
     return batch_images, batch_angles
 
-    
 
-gen_batch(train_data_angles, train_data_images, 4)
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, n_input])
-y = tf.placeholder(tf.float32, [None, n_classes])
+y = tf.placeholder(tf.float32)
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 # Create some wrappers for simplicity
@@ -170,11 +169,12 @@ biases = {
 pred = conv_net(x, weights, biases, keep_prob)
 
 # Define loss and optimizer
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+#cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
+cost = tf.reduce_mean(pred)
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize((pred-y)**2)
 
 # Evaluate model
-correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
+correct_pred = pred
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 # Initializing the variables

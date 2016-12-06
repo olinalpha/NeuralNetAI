@@ -174,7 +174,7 @@ cost = tf.reduce_mean(pred)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize((pred-y)**2)
 
 # Evaluate model
-correct_pred = pred
+correct_pred = y
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 # Initializing the variables
@@ -184,6 +184,7 @@ init = tf.initialize_all_variables()
 with tf.Session() as sess:
     sess.run(init)
     step = 1
+    print(y)
     # Keep training until reach max iterations
     while step * batch_size < training_iters:
         batch_x, batch_y = gen_batch(train_data_angles, train_data_images, batch_size)
